@@ -1,0 +1,23 @@
+<div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">New Transaction</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/add" method="POST">
+                <div class="modal-body p-4">
+                    <input type="text" name="title" class="form-control mb-3" placeholder="Description" required>
+                    <input type="number" name="amount" class="form-control mb-3" placeholder="Amount" required>
+                    <select name="type" class="form-select mb-3">
+                        <option value="income">Income (+)</option>
+                        <option value="expense">Expense (-)</option>
+                    </select>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-primary px-4">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

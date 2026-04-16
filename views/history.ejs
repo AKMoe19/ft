@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Sidebar နဲ့ Content ချိတ်ဆက်မှု CSS - !important သုံး၍ နေရာညှိထားသည် */
+        .main-content {
+            padding-left: 260px !important;
+            width: 100% !important;
+            transition: all 0.3s ease-in-out;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f8f9fa;
+        }
+
+        /* Sidebar ချုံ့လိုက်လျှင် Content ကို ဘယ်ဘက်ကပ်ထုတ်မည် */
+        .main-content.expanded {
+            padding-left: 85px !important;
+        }
+
+        /* Mobile View မှာ အပြည့်ပြရန် */
+        @media (max-width: 768px) {
+            .main-content, .main-content.expanded {
+                padding-left: 0 !important;
+            }
+        }
+
+        .card { border-radius: 12px; }
+        .table-responsive { border-radius: 8px; }
+        .badge { font-weight: 500; padding: 6px 10px; }
+    </style>
+</head>
+<body class="bg-light">
+
+    <%- include('partials/sidebar') %>
+    <%- include('partials/modal') %>
+
+    <div class="main-content">
+        <div class="container-fluid p-4" style="flex: 1;">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0">Transaction History</h2>
+                </div>
+
+            <div class="card p-4 border-0 shadow-sm mb-4">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="py-3">Date</th>
+                                <th class="py-3">Description</th>
+                                <th class="py-3 text-center">Type</th>
+                                <th class="py-3 text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (transactions.length > 0) { %>
+                                <% transactions.forEach(t => { %>
+                                <tr>
+                                    <td class="text-muted"><%= t.date.toDateString() %></td>
+                                    <td>
+                                        <span class="fw-bold text-dark"><%= t.title %></span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge rounded-pill <%= t.type === 'income' ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger' %>">
+                                            <i class="fas <%= t.type === 'income' ? 'fa-arrow-up' : 'fa-arrow-down' %> me-1 small"></i>
+                                            <%= t.type.toUpperCase() %>
+                                        </span>
+                                    </td>
+                                    <td class="text-end fw-bold <%= t.type === 'income' ? 'text-success' : 'text-danger' %>">
+                                        <%= t.type === 'income' ? '+' : '-' %> <%= t.amount.toLocaleString() %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">
+                                        စာရင်းများ မရှိသေးပါ။
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <%- include('partials/footer') %>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

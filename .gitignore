@@ -1,0 +1,17 @@
+# Dependency folders
+node_modules/
+
+# Environment variables
+.env
+
+# OS cache files
+.DS_Store
+Thumbs.db
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Skip testing images
+public/uploads/prod-*

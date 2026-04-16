@@ -1,0 +1,143 @@
+<nav class="navbar navbar-dark bg-dark d-md-none p-3 shadow-sm sticky-top">
+    <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">My Wallet</span>
+        <button class="navbar-toggler border-0" type="button" onclick="toggleSidebar()">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</nav>
+
+<div id="sidebar" class="sidebar bg-dark text-white p-3 shadow">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 px-2">
+        <h4 class="sidebar-text mb-0 fw-bold text-nowrap">My Wallet</h4>
+        <button class="btn text-white p-0 border-0" onclick="toggleSidebar(event)">
+            <i class="fas fa-bars fa-lg d-none d-md-block"></i>
+            <i class="fas fa-times fa-lg d-md-none"></i>
+        </button>
+    </div>
+
+    <ul class="nav flex-column h-100">
+        <li class="nav-item mb-2">
+            <a href="/" class="nav-link text-white <%= page === 'dashboard' ? 'active bg-primary' : '' %> rounded px-3">
+                <i class="fas fa-th-large"></i>
+                <span class="sidebar-text ms-3">Dashboard</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a href="/history" class="nav-link text-white <%= page === 'history' ? 'active bg-primary' : '' %> rounded px-3">
+                <i class="fas fa-history"></i>
+                <span class="sidebar-text ms-3">History</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a href="/reports" class="nav-link text-white <%= page === 'reports' ? 'active bg-primary' : '' %> rounded px-3">
+                <i class="fas fa-chart-pie"></i>
+                <span class="sidebar-text ms-3">Reports</span>
+            </a>
+        </li>
+
+        <hr>
+
+        <button class="btn btn-outline-secondary w-100 py-2 rounded-3 text-nowrap" data-bs-toggle="modal" data-bs-target="#addModal">
+            <i class="fas fa-plus"></i>
+            <span class="sidebar-text ms-2">New Entry</span>
+        </button>
+
+
+        <li class="mt-auto mb-5">
+
+            <div class="dropdown mt-2 mb-3">
+                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2 shadow-sm" style="width: 32px; height: 32px;">
+                        <i class="fas fa-user-astronaut text-white small"></i>
+                    </div>
+                    <strong class="sidebar-text"><%= typeof user !== 'undefined' ? user.username : 'User' %></strong>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark text-small shadow border-0" aria-labelledby="dropdownUser1" style="border-radius: 12px; padding: 10px;">
+                    <li>
+                        <a class="dropdown-item rounded-2 py-2" href="/profile">
+                            <i class="fas fa-id-card me-2 opacity-75"></i>Account Info
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item rounded-2 py-2" href="/settings">
+                            <i class="fas fa-cog me-2 opacity-75"></i>Account Settings
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider opacity-25"></li>
+                    <li>
+                        <a class="dropdown-item rounded-2 py-2 text-danger fw-bold" href="/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        </li>        
+        
+    </ul>
+    
+</div>
+
+<style>
+    /* Dropdown Hover Effect */
+    .dropdown-item:hover {
+        background-color: rgba(13, 110, 253, 0.2) !important;
+        color: #0d6efd !important;
+    }
+    
+    /* Desktop Sidebar ပုံမှန် Width */
+    .sidebar {
+        width: 260px !important;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        transition: width 0.3s ease;
+        z-index: 1050;
+        overflow: hidden;
+    }
+
+    /* Mini Sidebar ဖြစ်သွားရင် 85px ပဲထားမယ် */
+    .sidebar.mini {
+        width: 85px !important;
+    }
+
+    .sidebar.mini .sidebar-text {
+        display: none !important;
+    }
+
+    
+    .main-content {
+        padding-left: 260px !important;
+        width: 100% !important;
+        transition: padding-left 0.3s ease;
+    }
+
+    /* Sidebar သေးသွားရင် Content ကို ဘယ်ဘက် တွန်းကပ်လိုက်မယ် */
+    .main-content.expanded {
+        padding-left: 85px !important; /* နေရာလွတ် မကျန်အောင် 85px ပဲ ထားမယ် */
+    }
+
+    /* Mobile View */
+    @media (max-width: 768px) {
+        .sidebar { left: -260px !important; width: 260px !important; }
+        .sidebar.active { left: 0 !important; }
+        .main-content, .main-content.expanded { padding-left: 0 !important; }
+    }
+</style>
+
+<script>
+    function toggleSidebar(e) {
+        if(e) e.stopPropagation();
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.querySelector('.main-content');
+        
+        if (window.innerWidth > 768) {
+            sidebar.classList.toggle('mini');
+            if(mainContent) mainContent.classList.toggle('expanded');
+        } else {
+            sidebar.classList.toggle('active');
+        }
+    }
+</script>
