@@ -31,15 +31,27 @@
             <div class="row">
 
                 <div class="col-lg-8">
-                    <div class="card settings-card shadow-sm mb-4">
+
+                    <div class="card settings-card shadow-sm mb-4 border-0">
                         <div class="card-body p-4">
-                            <h5 class="fw-bold mb-4"><i class="fas fa-user-edit me-2 text-primary"></i>Profile Information</h5>
+                            <h5 class="fw-bold mb-4">
+                                <i class="fas fa-user-edit me-2 text-primary"></i>Profile Information
+                            </h5>
+                            
                             <form action="/settings/update-profile" method="POST">
-                                <div class="mb-3">
+                                <div class="mb-4">
                                     <label class="form-label text-muted small fw-bold">Username</label>
-                                    <input type="text" class="form-control bg-light" name="username" value="<%= user.username %>" required>
+                                    <input type="text" 
+                                           class="form-control bg-light border-0 py-2" 
+                                           name="username" 
+                                           value="<%= user.username %>" 
+                                           placeholder="နာမည်ရိုက်ထည့်ပါ"
+                                           required>
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-update">Update Profile</button>
+                                
+                                <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
+                                    Update Profile
+                                </button>
                             </form>
                         </div>
                     </div>
