@@ -242,6 +242,28 @@ app.post('/settings/update-password', async (req, res) => {
     }
 });
 
+// Profile Information (Username) Update လုပ်ခြင်း
+app.post('/settings/update-profile', async (req, res) => {
+    const { username } = req.body;
+    try {
+        // လက်ရှိ Login ဝင်ထားတဲ့ User ကို ရှာပြီး Username အသစ်လဲခြင်း
+        await User.findByIdAndUpdate(req.user._id, { username: username });
+
+        // Update ဖြစ်သွားတဲ့ အချက်အလက်သစ်နဲ့အတူ Page ကို ပြန်ပြခြင်း
+        res.render('settings', { 
+            user: { ...req.user, username: username }, // UI မှာ ချက်ချင်းပြောင်းလဲသွားစေရန်
+            page: 'settings', 
+            message: { type: 'success', text: 'Profile အချက်အလက်များကို အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ။' } 
+        });
+    } catch (err) {
+        console.error(err);
+        res.render('settings', { 
+            user: req.user, page: 'settings', 
+            message: { type: 'danger', text: 'အချက်အလက်ပြင်ဆင်မှု မအောင်မြင်ပါ။' } 
+        });
+    }
+});
+
 // app.listen(3000, () => console.log('Server running on http://localhost:3000'));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
