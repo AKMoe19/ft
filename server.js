@@ -208,6 +208,40 @@ app.get('/profile', async (req, res) => {
     }
 });
 
+// Settings Page
+app.get('/settings', (req, res) => {
+    if (!req.isAuthenticated()) return res.redirect('/login');
+    res.render('settings', { user: req.user, page: 'settings', message: null });
+});
+
+// Password Reset
+app.post('/settings/update-password', async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    try {
+        const user = await User.findById(req.user._id);
+        
+        // Check current password
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.render('settings', { 
+                user: req.user, page: 'settings', 
+                message: { type: 'danger', text: 'လက်ရှိ Password မှားယွင်းနေပါသည်။' } 
+            });
+        }
+
+        // Create New Password with Hash
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+
+        res.render('settings', { 
+            user: req.user, page: 'settings', 
+            message: { type: 'success', text: 'Change Password Successfully!' } 
+        });
+    } catch (err) {
+        res.status(500).send("Error updating settings");
+    }
+});
+
 // app.listen(3000, () => console.log('Server running on http://localhost:3000'));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
