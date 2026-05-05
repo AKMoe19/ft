@@ -37,7 +37,7 @@
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                     <h2 class="fw-bold mb-0">Financial Reports</h2>
                     
-                    <form action="/reports" method="GET" class="d-flex flex-row gap-2">
+                    <form action="/reports" method="GET" class="d-flex flex-wrap gap-2">
                         <select name="day" class="form-select border-0 shadow-sm" style="min-width: 100px;">
                             <option value="">All Days</option>
                             <% for(let d = 1; d <= 31; d++) { %>
