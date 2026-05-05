@@ -103,19 +103,32 @@ app.get('/history', isLoggedIn, async (req, res) => {
 // [C] Reports - လအလိုက် Filter (ကိုယ်ပိုင်စာရင်းများသာ)
 app.get('/reports', isLoggedIn, async (req, res) => {
     try {
-        const { month, year } = req.query;
+        const { day, month, year } = req.query;
         const now = new Date();
+
+        // Query မှ ပါလာလျှင် သုံးမည်၊ မပါလျှင် လက်ရှိ နေ့/လ/နှစ် ကို သုံးမည်
+        const selectedDay = day ? parseInt(day) : null; 
         const selectedMonth = month ? parseInt(month) : now.getMonth() + 1;
         const selectedYear = year ? parseInt(year) : now.getFullYear();
 
-        const startDate = new Date(selectedYear, selectedMonth - 1, 1);
-        const endDate = new Date(selectedYear, selectedMonth, 0, 23, 59, 59);
+        let startDate, endDate;
+
+        if (selectedDay) {
+            // သတ်မှတ်ထားသော "ရက်" တစ်ရက်တည်းအတွက် Filter
+            startDate = new Date(selectedYear, selectedMonth - 1, selectedDay, 0, 0, 0);
+            endDate = new Date(selectedYear, selectedMonth - 1, selectedDay, 23, 59, 59);
+        } else {
+            // တစ်လလုံးစာအတွက် Filter
+            startDate = new Date(selectedYear, selectedMonth - 1, 1);
+            endDate = new Date(selectedYear, selectedMonth, 0, 23, 59, 59);
+        }
 
         const filter = { 
             user: req.user._id, 
             date: { $gte: startDate, $lte: endDate } 
         };
 
+        // စုစုပေါင်း ဝင်ငွေ/ထွက်ငွေ တွက်ချက်ခြင်း
         const totals = await Transaction.aggregate([
             { $match: filter },
             { $group: { _id: "$type", total: { $sum: "$amount" } } }
@@ -123,16 +136,26 @@ app.get('/reports', isLoggedIn, async (req, res) => {
 
         let totalIncome = 0, totalExpense = 0;
         totals.forEach(t => {
-            if (t._id === 'income') totalIncome = t.total;
-            if (t._id === 'expense') totalExpense = t.total;
+            // Case-sensitive ဖြစ်နိုင်သဖြင့် toLowerCase() ဖြင့် စစ်ဆေးခြင်း
+            if (t._id.toLowerCase() === 'income') totalIncome = t.total;
+            if (t._id.toLowerCase() === 'expense') totalExpense = t.total;
         });
 
+        // စာရင်းဇယားများကို ရက်စွဲအလိုက် အစဉ်လိုက်ထုတ်ယူခြင်း
         const reportData = await Transaction.find(filter).sort({ date: -1 });
 
         res.render('reports', { 
-            totalIncome, totalExpense, reportData, selectedMonth, selectedYear, page: 'reports' 
+            totalIncome, 
+            totalExpense, 
+            reportData, 
+            selectedDay, // Frontend selection အတွက် ထည့်ပေးရန်လိုအပ်
+            selectedMonth, 
+            selectedYear, 
+            page: 'reports' 
         });
-    } catch (err) { res.status(500).send("Reports Error: " + err.message); }
+    } catch (err) { 
+        res.status(500).send("Reports Error: " + err.message); 
+    }
 });
 
 // [D] Add Transaction - User ID ပါတွဲသိမ်းရန်
@@ -149,6 +172,24 @@ app.post('/add', isLoggedIn, async (req, res) => {
         res.redirect('/'); 
     } catch (err) {
         res.status(500).send("Error adding transaction: " + err.message);
+    }
+});
+
+// [E] Update Transaction - လက်ရှိစာရင်းကို ပြင်ဆင်ခြင်း
+app.post('/transactions/update/:id', isLoggedIn, async (req, res) => {
+    try {
+        const { title, amount, type, date } = req.body;
+        
+        await Transaction.findOneAndUpdate(
+            { _id: req.params.id, user: req.user._id },
+            { title, amount, type, date },
+            { new: true }
+        );
+
+        // Reports ကို ပြန်သွားရန်
+        res.redirect('/reports'); 
+    } catch (err) {
+        res.status(500).send("Error updating transaction: " + err.message);
     }
 });
 
