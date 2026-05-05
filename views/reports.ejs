@@ -1,141 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Reports</title>
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* Sidebar နဲ့ Content ချိတ်ဆက်မှု CSS */
-        .main-content {
-            padding-left: 260px !important;
-            width: 100% !important;
-            transition: all 0.3s ease-in-out;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-color: #f8f9fa;
-        }
-
-        .main-content.expanded {
-            padding-left: 85px !important;
-        }
-
-        @media (max-width: 768px) {
-            .main-content, .main-content.expanded {
-                padding-left: 0 !important;
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Financial Reports</title>
+        <link rel="icon" type="image/png" href="/favicon.png">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
+            .main-content {
+                padding-left: 260px !important;
+                width: 100% !important;
+                transition: all 0.3s ease-in-out;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                background-color: #f8f9fa;
             }
-        }
+            .main-content.expanded { padding-left: 85px !important; }
+            @media (max-width: 768px) {
+                .main-content, .main-content.expanded { padding-left: 0 !important; }
+            }
+            .card { border-radius: 12px; }
+            .table-hover tbody tr { cursor: pointer; transition: 0.2s; }
+            .table-hover tbody tr:hover { background-color: #f1f4f9; }
+        </style>
+    </head>
+    <body class="bg-light">
 
-        .card { border-radius: 12px; }
-        .table thead th { border-top: none; }
-    </style>
-</head>
-<body class="bg-light">
+        <%- include('partials/sidebar') %>
+        <%- include('partials/modal') %> <!-- New Entry Modal -->
 
-    <%- include('partials/sidebar') %>
-    <%- include('partials/modal') %>
-
-    <div class="main-content">
-        <div class="container-fluid p-4" style="flex: 1;">
-            
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-                <h2 class="fw-bold mb-0">Financial Reports</h2>
+        <div class="main-content">
+            <div class="container-fluid p-4" style="flex: 1;">
                 
-                <form action="/reports" method="GET" class="d-flex gap-2">
-                    <select name="month" class="form-select border-0 shadow-sm" style="min-width: 130px;">
-                        <% 
-                            const monthNames = [
-                                "January", "February", "March", "April", "May", "June",
-                                "July", "August", "September", "October", "November", "December"
-                            ];
-                        %>
-                        <% monthNames.forEach((monthName, index) => { %>
-                            <option value="<%= index + 1 %>" <%= selectedMonth == (index + 1) ? 'selected' : '' %>>
-                                <%= monthName %>
-                            </option>
-                        <% }) %>
-                    </select>
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                    <h2 class="fw-bold mb-0">Financial Reports</h2>
+                    
+                    <form action="/reports" method="GET" class="d-flex flex-wrap gap-2">
+                        <select name="day" class="form-select border-0 shadow-sm" style="min-width: 100px;">
+                            <option value="">All Days</option>
+                            <% for(let d = 1; d <= 31; d++) { %>
+                                <option value="<%= d %>" <%= typeof selectedDay !== 'undefined' && selectedDay == d ? 'selected' : '' %>>
+                                    <%= d %>
+                                </option>
+                            <% } %>
+                        </select>
 
-                    <select name="year" class="form-select border-0 shadow-sm">
-                        <% 
-                            const startYear = 2024;
-                            const currentYear = new Date().getFullYear();
-                            const endYear = currentYear + 2;
-                        %>
-                        <% for(let y = startYear; y <= endYear; y++) { %>
-                            <option value="<%= y %>" <%= selectedYear == y ? 'selected' : '' %>>
-                                <%= y %>
-                            </option>
-                        <% } %>
-                    </select>
+                        <select name="month" class="form-select border-0 shadow-sm" style="min-width: 130px;">
+                            <% const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]; %>
+                            <% monthNames.forEach((monthName, index) => { %>
+                                <option value="<%= index + 1 %>" <%= selectedMonth == (index + 1) ? 'selected' : '' %>>
+                                    <%= monthName %>
+                                </option>
+                            <% }) %>
+                        </select>
 
-                    <button class="btn btn-primary px-4 shadow-sm">
-                        <i class="fas fa-filter me-1"></i> Filter
-                    </button>
-                </form>
-            </div>
+                        <select name="year" class="form-select border-0 shadow-sm" style="min-width: 100px;">
+                            <% let startYear = 2024; let currentYear = new Date().getFullYear(); %>
+                            <% for(let y = startYear; y <= currentYear + 2; y++) { %>
+                                <option value="<%= y %>" <%= selectedYear == y ? 'selected' : '' %>><%= y %></option>
+                            <% } %>
+                        </select>
 
-            <div class="row g-4 mb-4">
-                <div class="col-12 col-md-6">
-                    <div class="card p-4 border-0 shadow-sm border-start border-success border-5">
-                        <p class="text-muted mb-1">Total Monthly Income</p>
-                        <h3 class="text-success fw-bold">+ <%= totalIncome.toLocaleString() %></h3>
+                        <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                            <i class="fas fa-filter me-1"></i> Filter
+                        </button>
+                    </form>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-12 col-md-6">
+                        <div class="card p-4 border-0 shadow-sm border-start border-success border-5">
+                            <p class="text-muted mb-1">Total Income</p>
+                            <h3 class="text-success fw-bold">+ <%= totalIncome.toLocaleString() %></h3>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="card p-4 border-0 shadow-sm border-start border-danger border-5">
+                            <p class="text-muted mb-1">Total Expense</p>
+                            <h3 class="text-danger fw-bold">- <%= totalExpense.toLocaleString() %></h3>
+                        </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-6">
-                    <div class="card p-4 border-0 shadow-sm border-start border-danger border-5">
-                        <p class="text-muted mb-1">Total Monthly Expense</p>
-                        <h3 class="text-danger fw-bold">- <%= totalExpense.toLocaleString() %></h3>
-                    </div>
+
+                <div class="card p-4 border-0 shadow-sm mb-4">
+                    <h5 class="fw-bold mb-4 text-secondary border-bottom pb-2">
+                        <i class="fas fa-list me-2"></i>Records for 
+                        <%= (typeof selectedDay !== 'undefined' && selectedDay) ? selectedDay + ' ' : '' %><%= monthNames[selectedMonth-1] %> <%= selectedYear %>
+                    </h5>
+                    
+                    <% if (reportData.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Title & Date</th>
+                                        <th class="text-end">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% reportData.forEach(r => { %>
+                                    <tr onclick="openEditModal('<%= r._id %>', '<%= r.title %>', '<%= r.amount %>', '<%= r.type %>', '<%= r.date.toISOString().split('T')[0] %>')">
+                                        <td class="py-3">
+                                            <span class="fw-bold d-block text-dark"><%= r.title %></span>
+                                            <small class="text-muted">
+                                                <i class="far fa-calendar-alt me-1"></i> <%= r.date.toDateString() %>
+                                            </small>
+                                        </td>
+                                        <td class="text-end fw-bold <%= r.type.toLowerCase() === 'income' ? 'text-success' : 'text-danger' %>">
+                                            <%= r.type.toLowerCase() === 'income' ? '+' : '-' %> <%= r.amount.toLocaleString() %>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="fas fa-folder-open fa-3x text-light mb-3"></i>
+                            <p class="text-muted">ဤရက်စွဲအတွက် စာရင်းများ မရှိသေးပါ။</p>
+                        </div>
+                    <% } %>
                 </div>
             </div>
+            <%- include('partials/footer') %>
+        </div>
 
-            <div class="card p-4 border-0 shadow-sm mb-4">
-                <h5 class="fw-bold mb-4 text-secondary border-bottom pb-2">
-                    <i class="fas fa-list me-2"></i>Records for <%= monthNames[selectedMonth-1] %> <%= selectedYear %>
-                </h5>
-                
-                <% if (reportData.length > 0) { %>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Title & Date</th>
-                                    <th class="text-end">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% reportData.forEach(r => { %>
-                                <tr>
-                                    <td class="py-3">
-                                        <span class="fw-bold d-block text-dark"><%= r.title %></span>
-                                        <small class="text-muted">
-                                            <i class="far fa-calendar-alt me-1"></i> <%= r.date.toDateString() %>
-                                        </small>
-                                    </td>
-                                    <td class="text-end fw-bold <%= r.type === 'income' ? 'text-success' : 'text-danger' %>">
-                                        <%= r.type === 'income' ? '+' : '-' %> <%= r.amount.toLocaleString() %>
-                                    </td>
-                                </tr>
-                                <% }) %>
-                            </tbody>
-                        </table>
+        <!-- Edit Modal -->
+        <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2"></i>Edit Transaction</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                <% } else { %>
-                    <div class="text-center py-5">
-                        <i class="fas fa-folder-open fa-3x text-light mb-3"></i>
-                        <p class="text-muted">ဤလအတွက် စာရင်းများ မရှိသေးပါ။</p>
-                    </div>
-                <% } %>
+                    <form id="editForm" method="POST">
+                        <div class="modal-body p-4">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Title</label>
+                                <input type="text" name="title" id="editTitle" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Amount</label>
+                                <input type="number" name="amount" id="editAmount" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Type</label>
+                                <select name="type" id="editType" class="form-select" required>
+                                    <option value="income">Income</option>
+                                    <option value="expense">Expense</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Date</label>
+                                <input type="date" name="date" id="editDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary px-4">Update Transaction</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <%- include('partials/footer') %>
-    </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            function openEditModal(id, title, amount, type, date) {
+                // Form action ကို ID နဲ့ သတ်မှတ်ခြင်း
+                document.getElementById('editForm').action = '/transactions/update/' + id;
+                
+                // Modal ထဲက field တွေမှာ အချက်အလက်ဖြည့်ခြင်း
+                document.getElementById('editTitle').value = title;
+                document.getElementById('editAmount').value = amount;
+                document.getElementById('editType').value = type.toLowerCase();
+                document.getElementById('editDate').value = date;
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+                // Modal ကို ဖွင့်ခြင်း
+                var myModal = new bootstrap.Modal(document.getElementById('editModal'));
+                myModal.show();
+            }
+        </script>
+    </body>
 </html>
