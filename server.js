@@ -204,9 +204,12 @@ app.post('/login', passport.authenticate('local', {
 app.get('/register', (req, res) => res.render('register', { page: 'register' }));
 app.post('/register', async (req, res) => {
     try {
+        const userId = "W-" + Math.floor(Math.random() * 1000000);
         const { username, password } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({ username, password: hashedPassword });
+
+        await User.create({ username, password: hashedPassword, userId: userId });
+
         res.redirect('/login');
     } catch (err) { res.status(500).send("Registration Error: " + err.message); }
 });
